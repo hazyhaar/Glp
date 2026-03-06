@@ -40,6 +40,23 @@ Use `getDiagnostics` on every modified file. This covers:
 - `nilness` basic nil checks
 - `unusedparams`, `unusedwrite` detection
 
+**CLI fallback** (when LSP is not available as an integrated tool):
+
+```bash
+gopls check ./path/to/modified_file.go
+```
+
+If gopls is not available at all, fall back to standalone tools:
+
+```bash
+go vet ./...
+staticcheck ./...
+```
+
+These cover compilation errors, vet checks, and staticcheck analysis.
+They do not cover `modernize`, `unusedwrite`, or LSP hints, but provide
+a reasonable baseline for Pass 1a.
+
 ### 1b. golangci-lint (delta mode)
 
 ```bash
@@ -96,9 +113,20 @@ Flag exported functions with zero callers. Distinguish between:
 ### 2c. Impact analysis (via go-lsp skill)
 
 For each modified public function or type:
-- `findReferences` to list all callers
-- `hover` to verify the full signature hasn't drifted from callers' expectations
+- `findReferences` (or `gopls references` in CLI mode) to list all callers
+- `hover` (LSP) or `gopls definition` (CLI) to verify the full signature
+  hasn't drifted from callers' expectations
 - Flag any caller outside the current PR scope as potential breakage
+
+**CLI fallback** (when LSP is not available):
+
+```bash
+gopls references ./path/file.go:<line>:<col>
+gopls definition ./path/file.go:<line>:<col>
+```
+
+If gopls is unavailable, use `Grep "FuncName"` as a last resort — this
+finds textual matches but misses renames and interface satisfaction.
 
 ## Pass 3 — Pattern checklist
 

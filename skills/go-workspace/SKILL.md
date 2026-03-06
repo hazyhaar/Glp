@@ -39,8 +39,18 @@ go work init ./module1 ./module2 ./module3
 
 If a `go.mod` lists `replace mod => ../sibling` and that sibling module
 is already in `go.work`, the workspace resolution takes precedence over
-the replace directive. Remove the local replace to avoid ambiguity —
-gopls may report conflicting module paths otherwise.
+the replace directive.
+
+**Two strategies:**
+
+- **Remove the local replace** if the module is only built within the
+  workspace (pure monorepo). This avoids ambiguity — gopls may report
+  conflicting module paths otherwise.
+- **Keep the local replace** if the module's CI runs outside the
+  workspace (e.g., GitHub Actions checking out individual repos with
+  `GOWORK=off`). In this pattern, `replace` directives are necessary
+  for standalone `go build` to work, and go.work handles local dev.
+  Document this choice in the module's CLAUDE.md or go.mod comments.
 
 ## Nested modules without go.work
 

@@ -6,14 +6,45 @@ description: >-
   Prefer LSP over grep/find for all semantic operations.
 ---
 
+## Modes of operation
+
+gopls can be used in two modes. The available operations differ:
+
+### Integrated LSP (VS Code, Claude Code with LSP plugin)
+
+When gopls runs as a persistent language server, all LSP protocol
+operations are available as tools:
+
+- `findReferences` — all usages of a function or type
+- `goToDefinition` — jump to a definition
+- `hover` — type and doc info without reading the file
+- `documentSymbol` — list symbols in a file
+- `getDiagnostics` — current errors and warnings
+
+### CLI mode (gopls command-line)
+
+When invoking gopls directly from the shell, only a subset of
+operations is available:
+
+| CLI command | Equivalent LSP operation |
+|---|---|
+| `gopls check <file>` | `getDiagnostics` |
+| `gopls definition <file>:<line>:<col>` | `goToDefinition` |
+| `gopls references <file>:<line>:<col>` | `findReferences` |
+| `gopls symbols <file>` | `documentSymbol` |
+
+**`hover` is NOT available as a CLI command** (gopls v0.17+). In CLI
+mode, use `gopls definition` to get the full signature including the
+doc comment, which provides equivalent information.
+
 ## When to use LSP instead of grep
 
-Always use LSP tools for:
-- Finding all usages of a function or type → `findReferences`
-- Jumping to a definition → `goToDefinition`
-- Understanding a type without reading the file → `hover`
-- Listing symbols in a file → `documentSymbol`
-- Getting current errors → `getDiagnostics`
+Always use LSP tools (or their CLI equivalents) for:
+- Finding all usages of a function or type → `findReferences` / `gopls references`
+- Jumping to a definition → `goToDefinition` / `gopls definition`
+- Understanding a type without reading the file → `hover` (LSP only) / `gopls definition` (CLI)
+- Listing symbols in a file → `documentSymbol` / `gopls symbols`
+- Getting current errors → `getDiagnostics` / `gopls check`
 
 Use grep/find only for:
 - Literal string searches in comments or string constants
@@ -23,12 +54,12 @@ Use grep/find only for:
 
 After every modification of a `.go` file:
 
-1. Call `getDiagnostics` immediately. Fix any errors before proceeding.
+1. Call `getDiagnostics` (or `gopls check`) immediately. Fix any errors before proceeding.
 2. Do NOT call other LSP tools (`findReferences`, `hover`,
    `goToDefinition`, `documentSymbol`) unless explicitly needed for
    the next step.
-3. If `getDiagnostics` returns zero errors, proceed with the task.
-   If errors exist, fix them and re-run `getDiagnostics` until clean.
+3. If diagnostics return zero errors, proceed with the task.
+   If errors exist, fix them and re-run diagnostics until clean.
 
 Other LSP tools are on-demand only — use them when the task requires
 navigating to a definition, inspecting a type, or finding callers.
