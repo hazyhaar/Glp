@@ -20,5 +20,18 @@
   "category": "development",
   "lspServers": "./.lsp.json",
   "skills": "./skills/",
-  "agents": "./agents/"
+  "agents": "./agents/",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__gopls__.*|lsp__gopls__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/approve-gopls.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
