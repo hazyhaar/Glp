@@ -10,6 +10,7 @@ Integrates [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) (the official Go
 | **Skill: go-lsp** | When to use LSP vs grep for code navigation |
 | **Skill: go-modern** | Go 1.21→1.26 idioms guide, auto-detects version from `go.mod` |
 | **Skill: go-workspace** | Multi-module `go.work` setup and gopls configuration |
+| **Skill: go-mod** | Managing go.mod: deps, tool directives, troubleshooting |
 | **Skill: marketplace-check** | Audit plugin repos for marketplace compliance |
 | **Agent: go-reviewer** | Code reviewer using LSP diagnostics + staticcheck |
 
@@ -58,6 +59,7 @@ gopls-lsp/
 │   ├── go-lsp/SKILL.md       # LSP usage guidance
 │   ├── go-modern/SKILL.md    # Modern Go idioms
 │   ├── go-workspace/SKILL.md # Multi-module workspace
+│   ├── go-mod/SKILL.md       # go.mod management
 │   └── marketplace-check/SKILL.md  # Marketplace compliance audit
 ├── agents/
 │   └── go-reviewer.md        # Go code review agent
