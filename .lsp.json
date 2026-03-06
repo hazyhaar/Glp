@@ -1,0 +1,39 @@
+{
+  "gopls": {
+    "command": "gopls",
+    "args": ["serve"],
+    "transport": "stdio",
+    "extensionToLanguage": {
+      ".go": "go",
+      "go.mod": "go.mod",
+      "go.sum": "go.sum",
+      "go.work": "go.work"
+    },
+    "startupTimeout": 90000,
+    "shutdownTimeout": 15000,
+    "maxRestarts": 3,
+    "initializationOptions": {
+      "ui.completion.usePlaceholders": true,
+      "ui.diagnostic.staticcheck": true,
+      "ui.codelenses.gc_details": false,
+      "ui.navigation.importShortcut": "Both",
+      "analyses": {
+        "unusedparams": true,
+        "shadow": false,
+        "nilness": true,
+        "unusedwrite": true,
+        "useany": true,
+        "modernize": true
+      },
+      "hints": {
+        "assignVariableTypes": true,
+        "compositeLiteralFields": false,
+        "compositeLiteralTypes": false,
+        "constantValues": true,
+        "functionTypeParameters": true,
+        "parameterNames": true,
+        "rangeVariableTypes": true
+      }
+    }
+  }
+}

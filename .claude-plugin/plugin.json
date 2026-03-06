@@ -1,0 +1,22 @@
+{
+  "name": "gopls-lsp",
+  "version": "1.0.0",
+  "description": "Integrates gopls (official Go language server) into Claude Code. Provides jump-to-definition, find-references, real-time diagnostics, hover documentation, and Go 1.26-aware code skills for single and multi-module workspaces.",
+  "author": {
+    "name": "hazyhaar",
+    "url": "https://github.com/hazyhaar"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/hazyhaar/Glp",
+  "keywords": [
+    "go",
+    "golang",
+    "lsp",
+    "gopls",
+    "language-server",
+    "code-intelligence"
+  ],
+  "category": "code-intelligence",
+  "skills": "./skills/",
+  "agents": "./agents/"
+}
