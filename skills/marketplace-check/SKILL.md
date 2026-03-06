@@ -35,6 +35,48 @@ When asked to audit a plugin for marketplace compliance, verify:
 - MCP: valid JSON in `.mcp.json`
 - LSP: valid JSON in `.lsp.json`
 
+### LSP validation (.lsp.json)
+For each language server entry in `.lsp.json`:
+- **ERROR** `command` is present and non-empty
+- **ERROR** `extensionToLanguage` is present, is an object, and contains at
+  least one mapping (e.g. `{".go": "go"}`)
+- **ERROR** `transport`, when present, is one of `"stdio"` or `"tcp"`.
+  If the field is absent, that is acceptable (defaults to `"stdio"`)
+
+### Manifest ↔ disk coherence
+For every component path declared in `plugin.json` (`skills`, `agents`,
+`hooks`, `mcpServers`, `lspServers`):
+- **FATAL** the target file or directory must exist on disk relative to the
+  plugin root. A missing target means the plugin will fail to load at runtime
+
+When `skills` points to a directory, every immediate subdirectory must
+contain a `SKILL.md`. When `agents` points to a directory, it must contain
+at least one `.md` file.
+
+### Agent model strings
+For every agent `.md` in `agents/`:
+- **WARNING** the `model` frontmatter field, if present, must be one of the
+  known valid values: `sonnet`, `opus`, `haiku`, `inherit`,
+  `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001`.
+  An unrecognised value may cause silent fallback or errors at runtime
+
+### Shell script hygiene
+For every `.sh` file under the plugin root:
+- **WARNING** first line must be a shebang (`#!/usr/bin/env bash`,
+  `#!/bin/bash`, `#!/bin/sh`, or similar)
+- **WARNING** script should contain `set -e` or `set -euo pipefail` near the
+  top (within the first 10 lines) to fail fast on errors
+- **WARNING** flag obvious unquoted variable expansions (`$VAR` or
+  `${VAR}` outside of double quotes in command arguments). This does NOT
+  apply inside `[[ ]]` tests or arithmetic contexts
+
+### Keywords relevance
+In `plugin.json`:
+- **WARNING** `keywords` must contain at least one entry that relates to the
+  language, framework, or domain the plugin targets (e.g. `"go"`, `"python"`,
+  `"lsp"`, `"testing"`). Generic-only keywords like `["plugin"]` or
+  `["claude"]` are insufficient for marketplace discovery
+
 ### Security
 - No hardcoded secrets (API keys, tokens, passwords) in any file
 - Shell scripts have appropriate permissions (no world-writable)

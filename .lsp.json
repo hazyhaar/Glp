@@ -23,7 +23,8 @@
         "nilness": true,
         "unusedwrite": true,
         "useany": true,
-        "modernize": true
+        "modernize": true,
+        "unusedvariable": true
       },
       "hints": {
         "assignVariableTypes": true,

@@ -19,14 +19,31 @@ Use grep/find only for:
 - Literal string searches in comments or string constants
 - Non-Go files (.yaml, .sh, .md)
 
+## Ordre des opérations
+
+After every modification of a `.go` file:
+
+1. Call `getDiagnostics` immediately. Fix any errors before proceeding.
+2. Do NOT call other LSP tools (`findReferences`, `hover`,
+   `goToDefinition`, `documentSymbol`) unless explicitly needed for
+   the next step.
+3. If `getDiagnostics` returns zero errors, proceed with the task.
+   If errors exist, fix them and re-run `getDiagnostics` until clean.
+
+Other LSP tools are on-demand only — use them when the task requires
+navigating to a definition, inspecting a type, or finding callers.
+
 ## Multi-module (go.work)
 
 If the project contains a `go.work`, gopls loads all listed modules.
-Check with `documentSymbol` on a file from a secondary module before
-assuming a definition is missing.
 
-## After every Go edit
+`goToDefinition` can return "not found" on a symbol from a secondary
+module that gopls has not yet indexed. When this happens:
 
-gopls returns diagnostics automatically after modification.
-Read them before continuing — a type error or unresolved import
-is visible immediately without compilation.
+1. Identify a `.go` file in the target module (any file works).
+2. Call `documentSymbol` on that file — this forces gopls to index
+   the module.
+3. Retry `goToDefinition` on the original symbol.
+
+Do not fall back to grep. The index-then-retry sequence resolves the
+issue in all cases where the symbol actually exists.

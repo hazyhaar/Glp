@@ -12,9 +12,23 @@ Always read `go.mod` before modifying dependencies. Key directives:
 - `module` — the module path
 - `go X.Y` — minimum Go version, gates available language features
 - `require` — direct and indirect dependencies
-- `replace` — local overrides (common in monorepos)
+- `replace` — local or remote overrides (see Replace directives below)
 - `exclude` — blocked versions
 - `tool` — project-pinned CLI tools (Go 1.24+)
+
+Never modify `go.sum` manually. It is managed exclusively by `go mod tidy`
+and `go get`. Manual edits cause checksum mismatches.
+
+## Replace directives
+
+Two cases:
+
+- **Local replace** (`replace mod => ../path`): development only. Remove
+  before any publication, tag, or release. CI should reject `go.mod` files
+  containing local replace directives.
+- **Remote replace** (`replace mod => other@version`): acceptable workaround
+  for upstream bugs. Document the reason in a comment above the directive
+  and track removal in an issue.
 
 ## Adding dependencies
 
@@ -49,6 +63,16 @@ Install with `go get -tool <path>@<version>`, run with `go tool <name>`.
 | Upgrade all deps | `go get -u ./...` |
 | Upgrade patch only | `go get -u=patch ./...` |
 | Download without install | `go mod download` |
+
+In a `go.work` workspace, run `go mod tidy` inside each module separately:
+
+```bash
+cd module-a && go mod tidy && cd ..
+cd module-b && go mod tidy && cd ..
+```
+
+Do not run `go mod tidy` from the workspace root — it operates on the
+root `go.mod` only and ignores secondary modules.
 
 ## Version queries
 

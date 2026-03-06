@@ -20,6 +20,10 @@ Never use features beyond that version.
 - GC Green Tea enabled by default (was experimental in 1.25)
 - `crypto/hpke` — post-quantum HPKE (RFC 9180)
 
+If gopls is active, call `getDiagnostics` before any manual rewrite. The
+`modernize` analyzer detects patterns eligible for migration automatically
+and suggests rewrites. Prefer its suggestions over hand-editing.
+
 ## Go 1.25 (August 2025)
 
 - `testing/synctest` — synchronized concurrent testing
@@ -37,11 +41,35 @@ Never use features beyond that version.
 
 - `iter` package — iterators with range-over-func
 - `slices.All`, `maps.All`, `slices.Collect`
+- Yield convention: a push iterator has signature `func(yield func(V) bool)`.
+  `yield` returns `false` when the caller stops iteration. Never call `yield`
+  after it returned `false`.
 
 ## Go 1.22
 
 - `range N` for numeric loops
-- Per-iteration loop variables (silent breaking change)
+- Per-iteration loop variables (silent breaking change):
+
+  Before 1.22 — `v` is shared across iterations, goroutines capture the
+  final value:
+
+  ```go
+  for _, v := range items {
+      go func() { fmt.Println(v) }() // BUG: all print last item
+  }
+  ```
+
+  From 1.22 — each iteration gets its own `v`, goroutines capture correctly:
+
+  ```go
+  for _, v := range items {
+      go func() { fmt.Println(v) }() // OK: each prints its own item
+  }
+  ```
+
+  When reviewing code targeting < 1.22: audit every `range` loop that
+  launches a goroutine and captures the iterator variable. Add explicit
+  `v := v` shadowing or pass `v` as a goroutine argument.
 
 ## Go 1.21
 
