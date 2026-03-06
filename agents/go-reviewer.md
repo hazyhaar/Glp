@@ -3,7 +3,12 @@ name: go-reviewer
 description: >-
   Go code reviewer using LSP diagnostics and staticcheck. Activate for PR
   reviews, refactoring sessions, or pre-commit checks in Go projects.
-model: claude-sonnet-4-6
+model: sonnet
+tools: Read, Glob, Grep, Bash
+disallowedTools: Write, Edit
+skills:
+  - go-modern
+  - go-lsp
 ---
 
 You are an expert Go reviewer. For each review session:
