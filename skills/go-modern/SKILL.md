@@ -10,20 +10,43 @@ description: >-
 Read `go.mod` (directive `go X.Y`) to determine the target version.
 Never use features beyond that version.
 
-## Go 1.26 (February 2026) — UNCONFIRMED
+## Go 1.26 (February 2026)
 
-> **These features are based on proposals and early previews. Go 1.26 has
-> not been released as of 2026-03-06.** Do not use them in production code
-> until the official release confirms their inclusion. Remove this warning
-> once Go 1.26 is released and features are verified.
+### Language changes
 
 - `new(expr)` — creates an initialized pointer: `p := new(42)` instead of
-  `x := 42; p := &x`
-- `errors.AsType[T](err)` — replaces `errors.As` with typed return,
-  avoids pointer setup and type panics
-- Self-referential generics: `type Adder[A Adder[A]] interface{...}`
-- GC Green Tea enabled by default (was experimental in 1.25)
-- `crypto/hpke` — post-quantum HPKE (RFC 9180)
+  `x := 42; p := &x`. Especially useful for optional pointer fields in
+  JSON/protobuf structs.
+- Self-referential generics: `type Adder[A Adder[A]] interface{...}` —
+  generic types may now refer to themselves in their own type parameter list.
+
+### Performance
+
+- GC Green Tea enabled by default (was experimental in 1.25) — 10-40%
+  lower GC overhead for most programs with heavy GC workloads.
+- cgo overhead reduced by ~30%.
+- Compiler allocates slice backing stores on the stack in more cases.
+- Small object allocations up to 30% faster.
+
+### Tooling
+
+- `go fix` completely rewritten — now shares the analysis framework with
+  `go vet`. Includes dozens of fixers for modern Go idioms and a
+  source-level inliner via `//go:fix inline` directives. Prefer
+  `go fix ./...` over manual rewrites when migrating to modern patterns.
+- pprof web UI (`-http` flag) opens flame graph view by default.
+
+### New packages
+
+- `crypto/hpke` — Hybrid Public Key Encryption (RFC 9180), including
+  post-quantum hybrid KEMs.
+- `simd/archsimd` (experimental) — architecture-specific SIMD operations
+  on amd64 with 128/256/512-bit vector types.
+
+### Runtime
+
+- Goroutine leak detection: new `goroutineleak` profile detects goroutines
+  blocked on unreachable concurrency primitives.
 
 If gopls is active, call `getDiagnostics` before any manual rewrite. The
 `modernize` analyzer detects patterns eligible for migration automatically
