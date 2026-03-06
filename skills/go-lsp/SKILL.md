@@ -47,3 +47,25 @@ module that gopls has not yet indexed. When this happens:
 
 Do not fall back to grep. The index-then-retry sequence resolves the
 issue in all cases where the symbol actually exists.
+
+## Known limitations
+
+### workspaceSymbol
+
+`workspaceSymbol` returns empty results when the project is a single
+module without `go.work`. gopls treats it as a standalone package and
+does not populate the workspace index. Use `documentSymbol` per file
+instead, or create a `go.work` that lists the module.
+
+### goToImplementation
+
+`goToImplementation` may return "no definition found" on interfaces
+when gopls has not fully indexed dependencies. If this happens:
+
+1. Run `getDiagnostics` to ensure the project compiles cleanly.
+2. Call `documentSymbol` on a file in the package that contains the
+   concrete implementation — this forces indexing.
+3. Retry `goToImplementation`.
+
+If it still fails, fall back to `findReferences` on the interface
+method and filter for concrete types manually.

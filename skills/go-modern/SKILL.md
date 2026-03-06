@@ -10,7 +10,12 @@ description: >-
 Read `go.mod` (directive `go X.Y`) to determine the target version.
 Never use features beyond that version.
 
-## Go 1.26 (February 2026)
+## Go 1.26 (February 2026) — UNCONFIRMED
+
+> **These features are based on proposals and early previews. Go 1.26 has
+> not been released as of 2026-03-06.** Do not use them in production code
+> until the official release confirms their inclusion. Remove this warning
+> once Go 1.26 is released and features are verified.
 
 - `new(expr)` — creates an initialized pointer: `p := new(42)` instead of
   `x := 42; p := &x`
