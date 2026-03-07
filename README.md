@@ -16,18 +16,17 @@ Integrates [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) (the official Go
 
 ## Prerequisites
 
-- **Go** 1.24+ recommended (1.26 for all features)
-- **gopls** installed and in PATH:
+- **Go** 1.24+ in PATH (1.26 recommended for all features)
 
-```bash
-# Global install
-go install golang.org/x/tools/gopls@latest
+No separate `gopls` install needed — the plugin runs it automatically via `go run`.
 
-# Or via tool directive in go.mod (Go 1.24+)
-go get -tool golang.org/x/tools/gopls@latest
-```
+## External processes
 
-Verify: `gopls version` should return v0.18.0+
+This plugin launches `gopls` as an external process using `go run golang.org/x/tools/gopls@latest mcp`. The process communicates over stdio and runs for the duration of the Claude Code session.
+
+## Scope
+
+This plugin targets Go projects. It activates on files: `.go`, `go.mod`, `go.sum`, `go.work`.
 
 ## Installation
 

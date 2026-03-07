@@ -1,0 +1,6 @@
+{
+  "gopls": {
+    "command": "go",
+    "args": ["run", "golang.org/x/tools/gopls@latest", "mcp"]
+  }
+}
