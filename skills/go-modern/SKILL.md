@@ -20,7 +20,7 @@ Never use features beyond that version.
 - GC Green Tea enabled by default (was experimental in 1.25)
 - `crypto/hpke` — post-quantum HPKE (RFC 9180)
 
-If gopls is active, call `getDiagnostics` before any manual rewrite. The
+If gopls is active, call `go_diagnostics` before any manual rewrite. The
 `modernize` analyzer detects patterns eligible for migration automatically
 and suggests rewrites. Prefer its suggestions over hand-editing.
 

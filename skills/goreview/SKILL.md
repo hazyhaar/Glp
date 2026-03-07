@@ -33,7 +33,7 @@ Run these in parallel when possible. Collect all output before analysis.
 
 ### 1a. gopls diagnostics (via go-lsp skill)
 
-Use `getDiagnostics` on every modified file. This covers:
+Use `go_diagnostics` on every modified file. This covers:
 - Compilation errors and type mismatches
 - `staticcheck` warnings (enabled in `.lsp.json`)
 - `modernize` analyzer suggestions

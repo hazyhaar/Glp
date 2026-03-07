@@ -1,32 +1,41 @@
 # gopls-lsp — Claude Code Plugin
 
-Integrates [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) (the official Go language server) into Claude Code. Provides semantic code intelligence for Go projects: jump-to-definition, find-references, real-time diagnostics, hover documentation, and staticcheck analysis.
+Integrates [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) (the official Go language server) into Claude Code via MCP. Provides semantic code intelligence for Go projects: search, diagnostics, references, file context, and package API inspection.
 
 ## What this plugin provides
 
 | Component | Purpose |
 |---|---|
-| **LSP server** (`.lsp.json`) | gopls with staticcheck, modernize analyzer, full hints |
-| **Skill: go-lsp** | When to use LSP vs grep for code navigation |
+| **MCP server** (`.mcp.json`) | gopls in MCP stdio mode (`gopls mcp`) — active channel |
+| **LSP config** (`.lsp.json`) | gopls LSP fallback — inactive, kept for when Claude Code fixes LSP channel |
+| **Skill: go-lsp** | When and how to use the 6 MCP tools |
 | **Skill: go-modern** | Go 1.21→1.26 idioms guide, auto-detects version from `go.mod` |
 | **Skill: go-workspace** | Multi-module `go.work` setup and gopls configuration |
 | **Skill: go-mod** | Managing go.mod: deps, tool directives, troubleshooting |
+| **Skill: goreview** | Comprehensive Go code review (gopls + linters + patterns) |
 | **Skill: marketplace-check** | Audit plugin repos for marketplace compliance |
-| **Agent: go-reviewer** | Code reviewer using LSP diagnostics + staticcheck |
+| **Agent: go-reviewer** | Code reviewer using MCP diagnostics + staticcheck |
+
+## How it works
+
+gopls v0.20.0+ exposes a native MCP mode (`gopls mcp`) over stdio. This plugin uses that mode — not the LSP channel, which has [known bugs](https://github.com/anthropics/claude-code/issues/14803) in Claude Code.
+
+The 6 MCP tools exposed by gopls:
+
+| Tool | Purpose |
+|------|---------|
+| `go_workspace` | Workspace structure (modules, go.work) |
+| `go_search` | Fuzzy symbol search across modules |
+| `go_file_context` | Intra-package dependencies of a file |
+| `go_package_api` | Public API of a package |
+| `go_symbol_references` | All references to a symbol |
+| `go_diagnostics` | Build/parse errors in real time |
 
 ## Prerequisites
 
 - **Go** 1.24+ in PATH (1.26 recommended for all features)
 
-No separate `gopls` install needed — the plugin runs it automatically via `go run`.
-
-## External processes
-
-This plugin launches `gopls` as an external process using `go run golang.org/x/tools/gopls@latest mcp`. The process communicates over stdio and runs for the duration of the Claude Code session.
-
-## Scope
-
-This plugin targets Go projects. It activates on files: `.go`, `go.mod`, `go.sum`, `go.work`.
+No separate `gopls` install needed — launched via `go run golang.org/x/tools/gopls@latest mcp`.
 
 ## Installation
 
@@ -35,7 +44,7 @@ This plugin targets Go projects. It activates on files: `.go`, `go.mod`, `go.sum
 /plugin install gopls-lsp
 ```
 
-Restart Claude Code. gopls starts automatically when opening a `.go` file.
+Restart Claude Code. gopls starts automatically when a Go workspace is detected.
 
 ## Multi-module setup
 
@@ -52,16 +61,19 @@ gopls loads the entire workspace as a single instance.
 ```
 gopls-lsp/
 ├── .claude-plugin/
-│   └── plugin.json           # Plugin manifest
-├── .lsp.json                 # gopls LSP configuration
+│   └── plugin.json              # Plugin manifest
+├── .mcp.json                    # ACTIVE — gopls MCP stdio config
+├── .lsp.json                    # INACTIVE — LSP fallback (upstream bugs)
+├── CLAUDE.md                    # Plugin internals and invariants
 ├── skills/
-│   ├── go-lsp/SKILL.md       # LSP usage guidance
-│   ├── go-modern/SKILL.md    # Modern Go idioms
-│   ├── go-workspace/SKILL.md # Multi-module workspace
-│   ├── go-mod/SKILL.md       # go.mod management
+│   ├── go-lsp/SKILL.md          # MCP tools usage guide
+│   ├── go-modern/SKILL.md       # Modern Go idioms (1.21→1.26)
+│   ├── go-workspace/SKILL.md    # Multi-module workspace
+│   ├── go-mod/SKILL.md          # go.mod management
+│   ├── goreview/SKILL.md        # Full code review workflow
 │   └── marketplace-check/SKILL.md  # Marketplace compliance audit
 ├── agents/
-│   └── go-reviewer.md        # Go code review agent
+│   └── go-reviewer.md           # Go code review agent
 ├── LICENSE
 └── README.md
 ```
